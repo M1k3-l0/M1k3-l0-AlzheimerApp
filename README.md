@@ -64,3 +64,20 @@ Se stai lavorando a questo progetto, è **fondamentale** seguire queste regole:
 2. Ogni volta che fai un push, aggiorna la sezione **Changelog** in fondo a `PROGETTO_RECAP.md`.
 
 *Sviluppato con dedizione da **Daniele Spalletti** ([cosmonet.info](https://www.cosmonet.info)) per migliorare la qualità della vita quotidiana attraverso la tecnologia.*
+---
+
+## 📄 License & Credits
+
+**AlzheimerApp** is developed and maintained by **[Cosmonet](https://www.cosmonet.info)**.
+
+© 2026 Cosmonet (https://www.cosmonet.info) — All rights reserved.
+
+This project is licensed under the **Creative Commons Attribution-NonCommercial 4.0 International (CC BY-NC 4.0)** license.
+
+- ✅ You can use and share this project with proper attribution to Cosmonet.
+- ❌ Commercial use is **not permitted** without explicit written permission.
+
+For commercial licensing or collaboration inquiries:
+👉 [https://www.cosmonet.info](https://www.cosmonet.info)
+
+[![License: CC BY-NC 4.0](https://img.shields.io/badge/License-CC%20BY--NC%204.0-lightgrey.svg)](https://creativecommons.org/licenses/by-nc/4.0/)
