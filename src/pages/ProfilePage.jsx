@@ -164,6 +164,8 @@ const ProfilePage = () => {
             case 'patient': return 'Paziente'; 
             case 'caregiver': return 'Caregiver'; 
             case 'healthcare': return 'Medico'; 
+            case 'admin': return 'Amministratore';
+            case 'moderator': return 'Moderatore';
             default: return 'Utente'; 
         }
     };
@@ -376,7 +378,21 @@ const ProfilePage = () => {
                     {user.name} {user.surname}
                     {currentMood && <span style={styles.moodEmoji}>{getMoodEmoji(currentMood)}</span>}
                 </h1>
-                <div style={styles.roleBadge}>{getRoleLabel(user.role)}</div>
+                <div style={{
+                    ...styles.roleBadge,
+                    ...(user.role === 'admin' ? {
+                        background: 'linear-gradient(45deg, #FFD700, #FFA500)',
+                        color: '#000',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '6px',
+                        boxShadow: '0 2px 10px rgba(255, 215, 0, 0.4)',
+                        border: '1px solid #DAA520'
+                    } : {})
+                }}>
+                    {user.role === 'admin' && <AppIcon name="crown" size={16} color="black" />}
+                    {getRoleLabel(user.role)}
+                </div>
 
                 {isPatient && (
                     <div style={styles.moodIconContainer}>
@@ -443,6 +459,12 @@ const ProfilePage = () => {
                     <AppIcon name="calendar-lines" size={18} color="primaryDark" />
                     <span>Report umore</span>
                 </Link>
+                {user.role === 'admin' && (
+                    <button style={{ ...styles.actionBtn, borderTop: '1px solid var(--color-border)' }} onClick={() => navigate('/users')}>
+                        <AppIcon name="shield-check" size={18} color="primary" />
+                        <span>Gestione Utenti</span>
+                    </button>
+                )}
             </div>
 
             {/* Logout Button */}

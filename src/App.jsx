@@ -9,6 +9,7 @@ import SignupPage from './pages/SignupPage';
 import SettingsPage from './pages/SettingsPage';
 import ProfilePage from './pages/ProfilePage';
 import ReportUmorePage from './pages/ReportUmorePage';
+import UsersPage from './pages/UsersPage';
 
 function App() {
     const [isAuthenticated, setIsAuthenticated] = React.useState(!!localStorage.getItem('alzheimer_user'));
@@ -42,6 +43,7 @@ function App() {
                     <Route path="profilo" element={<ProfilePage />} />
                     <Route path="impostazioni" element={<SettingsPage />} />
                     <Route path="report-umore" element={<ReportUmorePage />} />
+                    <Route path="users" element={<UsersPage />} />
                 </Route>
             </Routes>
         </HashRouter>

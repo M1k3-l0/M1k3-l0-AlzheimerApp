@@ -94,13 +94,13 @@ const FeedPage = () => {
         try {
             const { data, error } = await supabase
                 .from('profiles')
-                .select('id, current_mood')
+                .select('id, current_mood, role')
                 .in('id', authorIds);
             
             if (!error && data) {
                 const moodsMap = {};
                 data.forEach(profile => {
-                    moodsMap[profile.id] = profile.current_mood;
+                    moodsMap[profile.id] = { mood: profile.current_mood, role: profile.role };
                 });
                 setUserMoods(moodsMap);
             }
@@ -351,7 +351,7 @@ const FeedPage = () => {
             <div style={styles.stickyHeader}>
                 <div style={styles.card}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px' }}>
-                        <div style={styles.avatar(userMoods[user.id || (user.name + (user.surname || ''))])}>
+                        <div style={styles.avatar(userMoods[user.id || (user.name + (user.surname || ''))]?.mood)}>
                             {user.photo && typeof user.photo === 'string' && user.photo.startsWith('http') ? <img src={user.photo} style={styles.avatarImg} alt="Profilo" /> : user.name[0]}
                         </div>
                         <input style={styles.input} placeholder={`A che pensi, ${user.name}?`} value={newPostText} onChange={(e) => setNewPostText(e.target.value)} />
@@ -372,7 +372,9 @@ const FeedPage = () => {
 
             {/* Ciclo Post */}
             {posts.map(post => {
-                const authorMood = userMoods[post.author_id];
+                const authorData = userMoods[post.author_id] || {};
+                const authorMood = authorData.mood;
+                const authorRole = authorData.role;
                 return (
                 <div key={post.id} style={styles.card}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px' }}>
@@ -383,12 +385,17 @@ const FeedPage = () => {
                             <div style={{ minWidth: 0 }}>
                                 <div style={{ fontWeight: '700', color: 'var(--color-primary-dark)', display: 'flex', alignItems: 'center', gap: '6px' }}>
                                     {post.author}
+                                    {authorRole === 'admin' && <AppIcon name="crown" size={14} color="primary" />}
                                     {authorMood && <span style={{ fontSize: '18px' }}>{getMoodEmoji(authorMood)}</span>}
                                 </div>
                                 <div style={{ fontSize: '11px', color: '#999' }}>{new Date(post.created_at).toLocaleString('it-IT', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}</div>
                             </div>
                         </div>
-                        <button style={{ background: 'none', border: 'none' }} onClick={() => deletePost(post.id)} aria-label="Elimina"><AppIcon name="trash" size={18} color="error" /></button>
+                        {(post.author_id === user.id || user.role === 'admin' || user.role === 'moderator') && (
+                            <button style={{ background: 'none', border: 'none' }} onClick={() => deletePost(post.id)} aria-label="Elimina">
+                                <AppIcon name="trash" size={18} color="error" />
+                            </button>
+                        )}
                     </div>
 
                     <div style={{ fontSize: '16px', color: '#333', marginBottom: '8px', textAlign: 'left', wordBreak: 'break-word', overflowWrap: 'break-word' }}>{post.text}</div>
@@ -421,7 +428,21 @@ const FeedPage = () => {
                                         {comm.author_photo && typeof comm.author_photo === 'string' && comm.author_photo.startsWith('http') ? <img src={comm.author_photo} style={styles.avatarImg} alt="C" /> : comm.author_name[0]}
                                     </div>
                                     <div style={styles.commentBubble}>
-                                        <div style={styles.commentAuthor}>{comm.author_name}</div>
+                                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                                            <div style={styles.commentAuthor}>{comm.author_name}</div>
+                                            {(comm.author_id === user.id || user.role === 'admin' || user.role === 'moderator') && (
+                                                <button 
+                                                    style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', opacity: 0.6 }} 
+                                                    onClick={() => {
+                                                        if (window.confirm("Eliminare il commento?")) {
+                                                            supabase.from('comments').delete().eq('id', comm.id).then(() => fetchAllComments());
+                                                        }
+                                                    }}
+                                                >
+                                                    <X size={14} color="#ef4444" />
+                                                </button>
+                                            )}
+                                        </div>
                                         <div style={styles.commentText}>{comm.text}</div>
                                     </div>
                                 </div>
