@@ -354,21 +354,24 @@ const PrivateChatPage = () => {
 
             <div style={styles.messageList}>
                 {messages.length === 0 && <div style={{ textAlign: 'center', color: '#9CA3AF', marginTop: '20px' }}>Inizia la conversazione con un messaggio!</div>}
-                {messages.map(msg => (
-                    <div key={msg.id} style={styles.bubble(msg.sender)}>
-                        {msg.type === 'audio' ? (
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', minWidth: '160px' }}>
-                                <AppIcon name="microphone" size={20} color={msg.sender === 'me' ? "#fff" : "primary"} />
-                                <audio controls style={{ height: '30px', width: '100%' }}>
-                                    <source src={msg.text} type="audio/webm" />
-                                </audio>
-                            </div>
-                        ) : (
-                            <p style={styles.messageText}>{msg.text}</p>
-                        )}
-                        <div style={styles.messageTime}>{msg.time}</div>
-                    </div>
-                ))}
+                {messages.map(msg => {
+                    const isAudio = msg.type === 'audio' || (typeof msg.text === 'string' && msg.text.includes('.webm'));
+                    return (
+                        <div key={msg.id} style={styles.bubble(msg.sender)}>
+                            {isAudio ? (
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', minWidth: '160px' }}>
+                                    <AppIcon name="microphone" size={20} color={msg.sender === 'me' ? "#fff" : "primary"} />
+                                    <audio controls style={{ height: '30px', width: '100%' }}>
+                                        <source src={msg.text} type="audio/webm" />
+                                    </audio>
+                                </div>
+                            ) : (
+                                <p style={styles.messageText}>{msg.text}</p>
+                            )}
+                            <div style={styles.messageTime}>{msg.time}</div>
+                        </div>
+                    );
+                })}
                 <div ref={messagesEndRef} />
             </div>
 
