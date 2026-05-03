@@ -83,6 +83,7 @@ export default function ClinicalDashboard() {
   const [history, setHistory] = useState([]);
   const [tasks, setTasks] = useState([]);
   const [notes, setNotes] = useState([]);
+  const [logs, setLogs] = useState([]);
   const [newNote, setNewNote] = useState('');
   const [loading, setLoading] = useState(true);
 
@@ -127,6 +128,16 @@ export default function ClinicalDashboard() {
       .order('created_at', { ascending: false });
     
     if (taskData) setTasks(taskData);
+
+    // Carica registro attività
+    const { data: logData } = await supabase
+      .from('activity_log')
+      .select('*')
+      .eq('user_id', patientId)
+      .order('created_at', { ascending: false })
+      .limit(50);
+    
+    if (logData) setLogs(logData);
 
     // Carica note
     const { data: noteData } = await supabase
@@ -375,6 +386,36 @@ export default function ClinicalDashboard() {
           ) : (
             <div style={styles.empty}>Nessuna attività in agenda.</div>
           )}
+        </div>
+      </div>
+
+      {/* Registro Attività Dettagliato */}
+      <div style={styles.section}>
+        <div style={styles.card}>
+          <div style={styles.cardTitle}>
+            <Activity size={22} color="var(--color-primary)" />
+            <span>Registro Attività (Log)</span>
+          </div>
+          <div style={{ maxHeight: '300px', overflowY: 'auto' }}>
+            {logs.length > 0 ? (
+              logs.map(log => (
+                <div key={log.id} style={{ ...styles.noteItem, padding: '10px 0', borderBottom: '1px solid #f0f0f0' }}>
+                  <div style={{ fontWeight: '600', color: 'var(--color-primary-dark)', fontSize: '13px' }}>
+                    {log.action === 'task_completed' && '✅ Task Completato'}
+                    {log.action === 'task_uncompleted' && '⏳ Task Ripristinato'}
+                    {log.action === 'task_added' && '➕ Nuovo Task'}
+                    {log.action === 'mood_updated' && '🎭 Umore Aggiornato'}
+                  </div>
+                  <div style={{ fontSize: '14px', margin: '4px 0' }}>{log.details}</div>
+                  <div style={{ ...styles.noteMeta, fontSize: '11px' }}>
+                    {new Date(log.created_at).toLocaleString('it-IT')}
+                  </div>
+                </div>
+              ))
+            ) : (
+              <div style={styles.empty}>Nessun'attività registrata.</div>
+            )}
+          </div>
         </div>
       </div>
 

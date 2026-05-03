@@ -192,6 +192,13 @@ const ProfilePage = () => {
                     user_id: user.id,
                     mood: mood
                 }]);
+
+                // 3. REGISTRO ATTIVITÀ
+                await supabase.from('activity_log').insert([{
+                    user_id: user.id,
+                    action: 'mood_updated',
+                    details: `Umore: ${mood}`
+                }]);
             }
         } catch (e) {
             console.error("Error saving mood", e);

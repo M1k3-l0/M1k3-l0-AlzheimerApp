@@ -137,6 +137,13 @@ const ListPage = () => {
                     user_id: profileId,
                     mood: mood
                 }]);
+
+                // REGISTRO ATTIVITÀ
+                await supabase.from('activity_log').insert([{
+                    user_id: profileId,
+                    action: 'mood_updated',
+                    details: `Umore: ${mood}`
+                }]);
             }
         } catch (e) {
             console.error("Error saving mood", e);
@@ -175,7 +182,16 @@ const ListPage = () => {
         const newStatus = !task.completed;
         setTasks(tasks.map(t => t.id === id ? { ...t, completed: newStatus } : t));
         
-        await supabase.from('tasks').update({ completed: newStatus }).eq('id', id);
+        const { error } = await supabase.from('tasks').update({ completed: newStatus }).eq('id', id);
+        
+        if (!error) {
+            // REGISTRO ATTIVITÀ
+            await supabase.from('activity_log').insert([{
+                user_id: user.id,
+                action: newStatus ? 'task_completed' : 'task_uncompleted',
+                details: task.text
+            }]);
+        }
     };
 
     const addTask = async () => {
@@ -194,6 +210,13 @@ const ListPage = () => {
             setNewTaskText("");
             setNewTaskTime("");
             setShowManage(false);
+
+            // REGISTRO ATTIVITÀ
+            await supabase.from('activity_log').insert([{
+                user_id: user.id,
+                action: 'task_added',
+                details: newTaskText
+            }]);
         }
     };
 
