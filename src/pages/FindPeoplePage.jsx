@@ -19,7 +19,7 @@ const FindPeoplePage = () => {
         setLoading(true);
         const { data, error } = await supabase
             .from('profiles')
-            .select('id, name, surname, email, photo_url, role')
+            .select('id, name, surname, email, photo_url, role, last_active')
             .neq('id', currentUser.id) // Non mostrare se stessi
             .order('name', { ascending: true });
         
@@ -141,7 +141,15 @@ const FindPeoplePage = () => {
                                     {u.photo_url ? <img src={u.photo_url} style={{ width: '100%', height: '100%', objectFit: 'cover' }} alt="Avatar" /> : <User size={24} color="#999" />}
                                 </div>
                                 <div style={styles.userInfo}>
-                                    <div style={styles.userName}>{u.name} {u.surname}</div>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                                        <div style={styles.userName}>{u.name} {u.surname}</div>
+                                        <div style={{ 
+                                            width: '8px', 
+                                            height: '8px', 
+                                            borderRadius: '50%', 
+                                            backgroundColor: (u.last_active && (new Date() - new Date(u.last_active)) < 300000) ? '#10B981' : '#EF4444' 
+                                        }} />
+                                    </div>
                                     <div style={styles.roleBadge}>{getRoleLabel(u.role)}</div>
                                 </div>
                                 <ChevronRight size={18} color="#D1D5DB" />

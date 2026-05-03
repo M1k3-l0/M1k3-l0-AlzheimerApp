@@ -36,7 +36,7 @@ const ProfilePage = () => {
 
                 let { data, error } = await supabase
                     .from('profiles')
-                    .select('id, name, surname, current_mood, role, bio, location, email, photo_url')
+                    .select('id, name, surname, current_mood, role, bio, location, email, photo_url, last_active')
                     .eq('id', profileId)
                     .single();
 
@@ -44,7 +44,7 @@ const ProfilePage = () => {
                 if (error || !data) {
                     const { data: retryData } = await supabase
                         .from('profiles')
-                        .select('id, name, surname, current_mood, role, bio, location, email, photo_url')
+                        .select('id, name, surname, current_mood, role, bio, location, email, photo_url, last_active')
                         .or(`id.eq.${profileId},name.ilike.%${profileId}%`)
                         .limit(1)
                         .single();
@@ -454,6 +454,15 @@ const ProfilePage = () => {
                 </div>
                 <h1 style={styles.name}>
                     {user.name} {user.surname}
+                    <span style={{ 
+                        display: 'inline-block', 
+                        width: '10px', 
+                        height: '10px', 
+                        borderRadius: '50%', 
+                        backgroundColor: (user.last_active && (new Date() - new Date(user.last_active)) < 300000) ? '#10B981' : '#EF4444', 
+                        marginLeft: '8px',
+                        boxShadow: `0 0 5px ${(user.last_active && (new Date() - new Date(user.last_active)) < 300000) ? 'rgba(16, 185, 129, 0.5)' : 'rgba(239, 68, 68, 0.5)'}`
+                    }} />
                     {currentMood && <span style={styles.moodEmoji}>{getMoodEmoji(currentMood)}</span>}
                 </h1>
                 <div style={{

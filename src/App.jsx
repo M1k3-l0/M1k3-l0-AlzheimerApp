@@ -18,6 +18,20 @@ import FindPeoplePage from './pages/FindPeoplePage';
 
 function App() {
     const [isAuthenticated, setIsAuthenticated] = React.useState(!!localStorage.getItem('alzheimer_user'));
+
+    React.useEffect(() => {
+        if (isAuthenticated) {
+            const updateActivity = async () => {
+                const user = JSON.parse(localStorage.getItem('alzheimer_user') || '{}');
+                if (user.id) {
+                    await supabase.from('profiles').update({ last_active: new Date().toISOString() }).eq('id', user.id);
+                }
+            };
+            updateActivity();
+            const interval = setInterval(updateActivity, 60000);
+            return () => clearInterval(interval);
+        }
+    }, [isAuthenticated]);
     const [loading, setLoading] = React.useState(true);
     const location = useLocation();
 
