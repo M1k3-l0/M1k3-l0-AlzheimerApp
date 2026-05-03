@@ -36,12 +36,12 @@ const Layout = () => {
         }
     };
 
-    const isFullPage = location.pathname.startsWith('/chat/') || 
-                       location.pathname.startsWith('/profilo/') || 
+    const isFullPage = location.pathname.includes('/chat/') || 
+                       location.pathname.includes('/profilo/') || 
                        ['/chat', '/feed', '/profilo'].includes(location.pathname);
-    const isChatPage = location.pathname.startsWith('/chat');
-    const isProfilePage = location.pathname.startsWith('/profilo');
-    const hideTabBar = location.pathname.startsWith('/chat/');
+    const isChatPage = location.pathname.includes('/chat');
+    const isProfilePage = location.pathname.includes('/profilo');
+    const hideTabBar = location.pathname.includes('/chat/') && location.pathname !== '/chat';
 
     return (
         <div className={`app-container${isFullPage ? ' full-page' : ''}`}>
