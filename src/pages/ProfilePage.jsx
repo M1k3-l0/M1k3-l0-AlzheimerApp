@@ -713,19 +713,31 @@ const ProfilePage = () => {
             </div>
 
             {/* Quick Actions Card */}
-            <div style={styles.actionCard}>
-                <button style={styles.actionBtn} onClick={() => navigate('/impostazioni')}>
-                    <AppIcon name="settings" size={18} color="primaryDark" />
-                    <span>Impostazioni App</span>
+            <div style={{ ...styles.actionCard, padding: 0, overflow: 'hidden' }}>
+                <button 
+                    style={{ ...styles.actionBtn, borderRadius: 0, padding: '16px' }} 
+                    onClick={() => navigate('/impostazioni')}
+                    className="action-row-hover"
+                >
+                    <AppIcon name="settings" size={20} color="primaryDark" />
+                    <span style={{ fontSize: '15px' }}>Impostazioni App</span>
                 </button>
-                <Link to={`/report-umore/${user.id}`} style={{ ...styles.actionBtn, textDecoration: 'none', borderTop: '1px solid var(--color-border)' }}>
-                    <AppIcon name="calendar-lines" size={18} color="primaryDark" />
-                    <span>Report umore</span>
+                <Link 
+                    to={`/report-umore/${user.id}`} 
+                    style={{ ...styles.actionBtn, borderRadius: 0, padding: '16px', textDecoration: 'none', borderTop: '1px solid #F3F4F6' }}
+                    className="action-row-hover"
+                >
+                    <AppIcon name="calendar-lines" size={20} color="primaryDark" />
+                    <span style={{ fontSize: '15px' }}>Report umore</span>
                 </Link>
                 {user.role === 'admin' && (
-                    <button style={{ ...styles.actionBtn, borderTop: '1px solid var(--color-border)' }} onClick={() => navigate('/users')}>
-                        <AppIcon name="shield-check" size={18} color="primary" />
-                        <span>Gestione Utenti</span>
+                    <button 
+                        style={{ ...styles.actionBtn, borderRadius: 0, padding: '16px', borderTop: '1px solid #F3F4F6' }} 
+                        onClick={() => navigate('/users')}
+                        className="action-row-hover"
+                    >
+                        <AppIcon name="shield-check" size={20} color="primary" />
+                        <span style={{ fontSize: '15px' }}>Gestione Utenti</span>
                     </button>
                 )}
             </div>
