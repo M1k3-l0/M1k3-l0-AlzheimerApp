@@ -104,13 +104,27 @@ const PrivateChatPage = () => {
     };
 
     const sendAudioMessage = async (blob) => {
-        const fileName = `${currentUserId}/${Date.now()}.webm`;
+        const tempId = Date.now();
+        const fileName = `${currentUserId}/${tempId}.webm`;
+        
+        // Aggiunta ottimistica (placeholder)
+        setMessages(prev => [...prev, {
+            id: tempId,
+            text: '',
+            type: 'audio',
+            sender: 'me',
+            time: new Date().toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' }),
+            uploading: true
+        }]);
+        setTimeout(scrollToBottom, 50);
+
         const { data: uploadData, error: uploadError } = await supabase.storage
             .from('voice_messages')
             .upload(fileName, blob);
 
         if (uploadError) {
             console.error("Errore upload audio:", uploadError);
+            setMessages(prev => prev.filter(m => m.id !== tempId));
             alert("Errore caricamento audio. Assicurati di aver creato il bucket 'voice_messages' su Supabase.");
             return;
         }
@@ -118,12 +132,21 @@ const PrivateChatPage = () => {
         const { data: urlData } = supabase.storage.from('voice_messages').getPublicUrl(fileName);
         const audioUrl = urlData.publicUrl;
 
-        await supabase.from('private_messages').insert([{
+        const { data: insertData } = await supabase.from('private_messages').insert([{
             sender_id: currentUserId,
             receiver_id: receiverId,
             content: audioUrl,
             type: 'audio'
-        }]);
+        }]).select();
+
+        if (insertData && insertData[0]) {
+            setMessages(prev => prev.map(m => m.id === tempId ? { 
+                ...m, 
+                id: insertData[0].id, 
+                text: audioUrl, 
+                uploading: false 
+            } : m));
+        }
     };
 
     const markMessagesAsRead = async () => {
@@ -178,19 +201,36 @@ const PrivateChatPage = () => {
     const handleSend = async () => {
         if (!inputText.trim()) return;
         const textToSend = inputText;
+        const tempId = Date.now(); // ID temporaneo per UI
+        
+        // Aggiunta ottimistica alla UI
+        const newMessage = {
+            id: tempId,
+            text: textToSend,
+            type: 'text',
+            sender: 'me',
+            time: new Date().toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' }),
+            sending: true
+        };
+        
+        setMessages(prev => [...prev, newMessage]);
         setInputText(""); 
+        setTimeout(scrollToBottom, 50);
 
-        const { error } = await supabase.from('private_messages').insert([{
+        const { error, data } = await supabase.from('private_messages').insert([{
             content: textToSend,
             sender_id: currentUserId,
             receiver_id: receiverId
-        }]);
+        }]).select();
 
         if (error) {
+            // Rimuovi dalla UI se fallisce
+            setMessages(prev => prev.filter(m => m.id !== tempId));
             setInputText(textToSend);
             alert("Errore invio");
-        } else {
-            setTimeout(scrollToBottom, 50);
+        } else if (data && data[0]) {
+            // Aggiorna con ID reale del database
+            setMessages(prev => prev.map(m => m.id === tempId ? { ...m, id: data[0].id, sending: false } : m));
         }
     };
 
