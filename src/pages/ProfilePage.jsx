@@ -60,8 +60,19 @@ const ProfilePage = () => {
                         ...data,
                         photo: data.photo_url
                     });
-                } else if (isOwnProfile) {
-                    setUser(loggedInUser);
+                } else if (isOwnProfile && loggedInUser) {
+                    // SELF-HEALING: Se è il proprio profilo ma manca nel DB, crealo
+                    console.log("Profile missing, creating fallback...");
+                    const newProfile = {
+                        id: loggedInUser.id,
+                        name: loggedInUser.name || 'Utente',
+                        surname: loggedInUser.surname || '',
+                        role: loggedInUser.role || 'caregiver',
+                        photo_url: loggedInUser.photo || null,
+                        email: loggedInUser.email || null
+                    };
+                    await supabase.from('profiles').upsert([newProfile]);
+                    setUser({ ...newProfile, photo: newProfile.photo_url });
                 }
 
                 fetchFollowStats(profileId);
