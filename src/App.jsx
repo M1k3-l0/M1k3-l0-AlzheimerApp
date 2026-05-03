@@ -59,18 +59,30 @@ function App() {
                     .eq('id', localUser.id)
                     .single();
 
-                if (error) {
-                    console.error("Errore sync profilo:", error);
-                } else if (profile) {
-                    // 1. Controllo BAN
-                    if (profile.is_banned) {
-                        alert("Il tuo account è stato sospeso. Contatta l'assistenza.");
-                        localStorage.removeItem('alzheimer_user');
-                        await supabase.auth.signOut();
-                        setIsAuthenticated(false);
-                        window.location.href = '/#/login';
-                        return;
+                if (error || !profile) {
+                    console.log("Profilo non trovato nel DB, provo a crearlo...");
+                    const newProfile = {
+                        id: localUser.id,
+                        name: localUser.name || 'Utente',
+                        surname: localUser.surname || '',
+                        role: localUser.role || 'caregiver',
+                        email: localUser.email || localUser.id,
+                        photo_url: localUser.photo || null
+                    };
+                    const { data: created, error: createError } = await supabase
+                        .from('profiles')
+                        .upsert([newProfile])
+                        .select()
+                        .single();
+                    
+                    if (createError) {
+                        console.error("Errore creazione profilo forzata:", createError);
+                    } else {
+                        console.log("Profilo creato con successo!");
                     }
+                    setLoading(false);
+                    return;
+                }
 
                     // 2. Aggiornamento dati se cambiati (es. ruolo)
                     const updatedUser = {
