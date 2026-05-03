@@ -10,8 +10,8 @@ const ProfilePage = () => {
     const { id } = useParams();
     const navigate = useNavigate();
     const loggedInUser = JSON.parse(localStorage.getItem('alzheimer_user') || '{}');
-    const [user, setUser] = useState(loggedInUser);
-    const isOwnProfile = !id || id === loggedInUser.id || id === (loggedInUser.name + (loggedInUser.surname || ''));
+    const [user, setUser] = useState(null);
+    const isOwnProfile = !id || id === loggedInUser.id;
     const [currentMood, setCurrentMood] = useState(null);
     const [loading, setLoading] = useState(true);
     const [uploadingPhoto, setUploadingPhoto] = useState(false);
@@ -26,7 +26,13 @@ const ProfilePage = () => {
         const fetchUserData = async () => {
             setLoading(true);
             try {
-                const profileId = id || loggedInUser.id || (loggedInUser.name + (loggedInUser.surname || ''));
+                const profileId = id || loggedInUser.id;
+                
+                if (!profileId) {
+                    setLoading(false);
+                    return;
+                }
+
                 const { data, error } = await supabase
                     .from('profiles')
                     .select('id, name, surname, current_mood, role, bio, location, email, photo_url')
@@ -40,14 +46,26 @@ const ProfilePage = () => {
                         photo: data.photo_url
                     });
                 } else if (isOwnProfile) {
-                    // Fallback se il profilo proprio non viene trovato (es. primo login senza trigger)
                     setUser(loggedInUser);
+                } else {
+                    // Se non è il proprio profilo e non lo trova, potrebbe essere un vecchio ID stringa
+                    // Proviamo a cercare per nome+cognome come fallback (solo se id non è UUID)
+                    const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-5][0-9a-f]{3}-[089ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(profileId);
+                    if (!isUUID) {
+                        const { data: fallbackData } = await supabase
+                            .from('profiles')
+                            .select('id, name, surname, current_mood, role, bio, location, email, photo_url')
+                            .filter('id', 'ilike', `%${profileId}%`) // Ricerca testuale grezza se non è UUID
+                            .limit(1)
+                            .single();
+                        
+                        if (fallbackData) {
+                            setUser({ ...fallbackData, photo: fallbackData.photo_url });
+                        }
+                    }
                 }
 
-                // Carica statistiche seguiti
                 fetchFollowStats(profileId);
-                
-                // Se non è il proprio profilo, controlla se lo seguiamo
                 if (!isOwnProfile && loggedInUser.id) {
                     checkFollowStatus(loggedInUser.id, profileId);
                 }
@@ -58,7 +76,7 @@ const ProfilePage = () => {
             }
         };
         fetchUserData();
-    }, [id, loggedInUser.id]);
+    }, [id]); // Ricarica solo quando cambia l'ID
 
     const fetchFollowStats = async (profileId) => {
         const { count: followers } = await supabase.from('follows').select('*', { count: 'exact', head: true }).eq('followed_id', profileId);
@@ -390,7 +408,7 @@ const ProfilePage = () => {
         }
     };
 
-    if (loading) return <div style={{ padding: '40px', textAlign: 'center' }}>Caricamento...</div>;
+    if (loading || !user) return <div style={{ padding: '40px', textAlign: 'center', backgroundColor: 'var(--color-bg-primary)', height: '100vh' }}>Caricamento profilo...</div>;
 
     return (
         <div style={styles.container} className="last-scroll-block">
