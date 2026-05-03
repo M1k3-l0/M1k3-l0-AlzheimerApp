@@ -3,6 +3,7 @@ import { HashRouter, Routes, Route, Navigate } from 'react-router-dom';
 import Layout from './components/Layout';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useLocation } from 'react-router-dom';
+import { supabase } from './supabaseClient';
 import ListPage from './pages/ListPage';
 import ChatPage from './pages/ChatPage';
 import FeedPage from './pages/FeedPage';

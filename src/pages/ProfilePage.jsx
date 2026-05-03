@@ -86,6 +86,22 @@ const ProfilePage = () => {
             }
         };
         fetchUserData();
+
+        const profileId = id || loggedInUser?.id;
+        if (profileId) {
+            const channel = supabase
+                .channel(`profile-status-${profileId}`)
+                .on('postgres_changes', {
+                    event: 'UPDATE',
+                    schema: 'public',
+                    table: 'profiles',
+                    filter: `id=eq.${profileId}`
+                }, (payload) => {
+                    setUser(prev => prev ? ({ ...prev, last_active: payload.new.last_active }) : null);
+                })
+                .subscribe();
+            return () => { supabase.removeChannel(channel); };
+        }
     }, [id]); 
 
     const fetchFollowStats = async (profileId) => {
