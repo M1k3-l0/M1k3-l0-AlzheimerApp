@@ -229,25 +229,46 @@ const PrivateChatPage = () => {
     };
 
     const getSupportedMimeType = () => {
-        const types = ['audio/webm', 'audio/mp4', 'audio/ogg', 'audio/wav'];
+        const types = [
+            'audio/webm;codecs=opus',
+            'audio/webm',
+            'audio/mp4',
+            'audio/aac',
+            'audio/mpeg',
+            'audio/wav'
+        ];
         for (const type of types) {
-            if (MediaRecorder.isTypeSupported(type)) return type;
+            try {
+                if (MediaRecorder.isTypeSupported(type)) return type;
+            } catch (e) {}
         }
-        return 'audio/webm'; // fallback
+        return ''; // Lascia decidere al browser
     };
 
     const getExtension = (mimeType) => {
-        if (mimeType.includes('mp4')) return 'mp4';
+        if (!mimeType) return 'mp4'; // Default sicuro
+        if (mimeType.includes('mp4') || mimeType.includes('aac')) return 'mp4';
         if (mimeType.includes('ogg')) return 'ogg';
         if (mimeType.includes('wav')) return 'wav';
-        return 'webm';
+        if (mimeType.includes('webm')) return 'webm';
+        return 'mp4';
     };
 
     const startRecording = async () => {
         try {
             const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
             const mimeType = getSupportedMimeType();
-            const recorder = new MediaRecorder(stream, { mimeType });
+            
+            let recorder;
+            try {
+                const options = mimeType ? { mimeType } : {};
+                recorder = new MediaRecorder(stream, options);
+                console.log("MediaRecorder avviato con formato:", recorder.mimeType || "default");
+            } catch (e) {
+                console.warn("MimeType non supportato, uso default del browser");
+                recorder = new MediaRecorder(stream);
+            }
+            
             const chunks = [];
 
             recorder.ondataavailable = (e) => {
@@ -255,7 +276,7 @@ const PrivateChatPage = () => {
             };
 
             recorder.onstop = async () => {
-                const actualMimeType = recorder.mimeType || mimeType;
+                const actualMimeType = recorder.mimeType || mimeType || 'audio/mp4';
                 const extension = getExtension(actualMimeType);
                 const audioBlob = new Blob(chunks, { type: actualMimeType });
                 await sendAudioMessage(audioBlob, extension);
@@ -271,8 +292,19 @@ const PrivateChatPage = () => {
                 setRecordingDuration(prev => prev + 1);
             }, 1000);
         } catch (err) {
-            console.error("Errore accesso microfono:", err);
-            alert("Permesso microfono negato o non supportato.");
+            console.error("Errore registrazione:", err);
+            // Invia l'errore al debug console log
+            const errorLog = {
+                message: "Errore Mic: " + (err.message || err.toString()),
+                time: new Date().toLocaleTimeString(),
+                type: 'Codice'
+            };
+            const logs = JSON.parse(localStorage.getItem('debug_errors') || '[]');
+            logs.unshift(errorLog);
+            localStorage.setItem('debug_errors', JSON.stringify(logs.slice(0, 10)));
+            window.dispatchEvent(new CustomEvent('debug_error_added'));
+            
+            alert("Errore accesso microfono o formato non supportato.");
         }
     };
 
