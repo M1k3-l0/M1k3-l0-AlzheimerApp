@@ -25,28 +25,29 @@ const Layout = () => {
         else document.documentElement.classList.remove('large-font-mode');
     }, []);
 
+    const currentPath = window.location.hash.replace('#', '');
+    const isFullPage = currentPath.includes('/chat/') || 
+                       currentPath.includes('/profilo/') || 
+                       ['/chat', '/feed', '/profilo'].includes(currentPath);
+    const isChatPage = currentPath.startsWith('/chat');
+    const isProfilePage = currentPath.startsWith('/profilo');
+    const hideTabBar = currentPath.includes('/chat/') && currentPath !== '/chat';
+    
     const getTitle = (path) => {
-        if (path.startsWith('/chat')) return 'Chat';
-        if (path.startsWith('/profilo')) return 'Profilo';
+        if (path.startsWith('/chat/')) return 'Chat';
+        if (path.startsWith('/profilo/')) return 'Profilo';
         if (path.startsWith('/feed')) return 'Memoriae';
         if (path.startsWith('/utenti')) return 'Ricerca';
         if (path.startsWith('/impostazioni')) return 'Impostazioni';
         if (path.startsWith('/report-umore')) return 'Report Umore';
         
-        if (path === '/') return 'Home';
+        if (path === '/' || path === '') return 'Home';
         return 'Memora';
     };
 
-    const isFullPage = location.pathname.includes('/chat/') || 
-                       location.pathname.includes('/profilo/') || 
-                       ['/chat', '/feed', '/profilo'].includes(location.pathname);
-    const isChatPage = location.pathname.includes('/chat');
-    const isProfilePage = location.pathname.includes('/profilo');
-    const hideTabBar = location.pathname.includes('/chat/') && location.pathname !== '/chat';
-
     return (
         <div className={`app-container${isFullPage ? ' full-page' : ''}`}>
-            <Header title={getTitle(location.pathname)} />
+            <Header title={getTitle(currentPath)} />
             <main className={`main-content${isFullPage ? ' full-page' : ''}${isChatPage ? ' full-page-fill' : ''}${isProfilePage ? ' page-profilo' : ''}`} style={{ paddingTop: 'var(--header-height)' }}>
                 <AnimatePresence mode="wait">
                     <motion.div
