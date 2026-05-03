@@ -10,8 +10,8 @@ const ProfilePage = () => {
     const { id } = useParams();
     const navigate = useNavigate();
     const loggedInUser = JSON.parse(localStorage.getItem('alzheimer_user') || '{}');
-    const [user, setUser] = useState(null);
     const isOwnProfile = !id || id === loggedInUser.id;
+    const [user, setUser] = useState(isOwnProfile ? loggedInUser : null);
     const [currentMood, setCurrentMood] = useState(null);
     const [loading, setLoading] = useState(true);
     const [uploadingPhoto, setUploadingPhoto] = useState(false);
@@ -408,7 +408,14 @@ const ProfilePage = () => {
         }
     };
 
-    if (loading || !user) return <div style={{ padding: '40px', textAlign: 'center', backgroundColor: 'var(--color-bg-primary)', height: '100vh' }}>Caricamento profilo...</div>;
+    if (loading && !user) return <div style={{ padding: '40px', textAlign: 'center', backgroundColor: 'var(--color-bg-primary)', height: '100vh' }}>Caricamento profilo...</div>;
+
+    if (!user && !loading) return (
+        <div style={{ padding: '40px', textAlign: 'center', backgroundColor: 'var(--color-bg-primary)', height: '100vh' }}>
+            <p>Utente non trovato</p>
+            <button onClick={() => navigate(-1)} style={{ color: 'var(--color-primary)', border: 'none', background: 'none', fontWeight: 'bold', cursor: 'pointer' }}>Torna indietro</button>
+        </div>
+    );
 
     return (
         <div style={styles.container} className="last-scroll-block">
