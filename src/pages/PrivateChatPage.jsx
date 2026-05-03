@@ -111,6 +111,7 @@ const PrivateChatPage = () => {
 
         if (uploadError) {
             console.error("Errore upload audio:", uploadError);
+            alert("Errore caricamento audio. Assicurati di aver creato il bucket 'voice_messages' su Supabase.");
             return;
         }
 
