@@ -44,10 +44,15 @@ function App() {
                 const userId = session?.user?.id;
                 
                 if (userId) {
-                    await supabase.from('profiles').update({ 
+                    const { data, error } = await supabase.from('profiles').update({ 
                         last_active: new Date().toISOString() 
-                    }).eq('id', userId);
-                    console.log("🟢 Segnale attività inviato per:", userId);
+                    }).eq('id', userId).select();
+                    
+                    if (error) {
+                        console.error("❌ Errore Database Segnale:", error);
+                    } else {
+                        console.log("🟢 Risultato Segnale:", data);
+                    }
                 }
             };
             updateActivity();
