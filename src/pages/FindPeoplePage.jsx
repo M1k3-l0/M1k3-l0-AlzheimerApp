@@ -20,11 +20,13 @@ const FindPeoplePage = () => {
         const { data, error } = await supabase
             .from('profiles')
             .select('id, name, surname, email, photo_url, role, last_active')
-            .neq('id', currentUser.id) // Non mostrare se stessi
             .order('name', { ascending: true });
         
-        if (!error && data) {
-            setUsers(data);
+        if (error) {
+            console.error("Error fetching users:", error);
+        } else {
+            // Filtriamo noi stessi qui invece che nella query per sicurezza
+            setUsers(data.filter(u => u.id !== currentUser.id));
         }
         setLoading(false);
     };
