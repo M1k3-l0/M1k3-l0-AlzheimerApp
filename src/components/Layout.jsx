@@ -26,13 +26,17 @@ const Layout = () => {
     }, []);
 
     const getTitle = (path) => {
+        if (path.includes('/chat/')) return 'Chat';
+        if (path.includes('/profilo/')) return 'Profilo';
+        
         switch (path) {
             case '/': return 'Home';
             case '/chat': return 'Messaggi';
             case '/feed': return 'Memoriae';
             case '/impostazioni': return 'Impostazioni';
             case '/report-umore': return 'Report Umore';
-            default: return 'App';
+            case '/utenti': return 'Ricerca';
+            default: return 'Memora';
         }
     };
 
