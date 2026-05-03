@@ -163,14 +163,18 @@ const ProfilePage = () => {
         setCurrentMood(mood);
         addMoodEntry(mood);
         try {
-            const profileId = user.id || (user.name + (user.surname || ''));
-            await supabase.from('profiles').upsert([{ 
-                id: profileId, 
-                current_mood: mood,
-                name: user.name,
-                surname: user.surname,
-                role: user.role
-            }]);
+            if (user.id) {
+                // 1. Aggiorna l'umore nel profilo per visualizzazione immediata
+                await supabase.from('profiles').update({ 
+                    current_mood: mood 
+                }).eq('id', user.id);
+
+                // 2. Registra nello storico per i medici
+                await supabase.from('mood_history').insert([{
+                    user_id: user.id,
+                    mood: mood
+                }]);
+            }
         } catch (e) {
             console.error("Error saving mood", e);
         }

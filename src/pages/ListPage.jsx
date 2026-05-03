@@ -119,22 +119,27 @@ const ListPage = () => {
 
     const handleMoodSelect = async (mood) => {
         setCurrentMood(mood);
+        // Salva locale per velocità
         addMoodEntry(mood);
-        if (isPatient) {
-            const ora = new Date().toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' });
-            setMoodToast(`Umore delle ${ora} registrato con successo!`);
-            try {
-                const profileId = user.id || (user.name + (user.surname || ''));
-                await supabase.from('profiles').upsert([{
-                    id: profileId,
-                    current_mood: mood,
-                    name: user.name,
-                    surname: user.surname,
-                    role: user.role
+        
+        const ora = new Date().toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' });
+        setMoodToast(`Umore delle ${ora} registrato con successo!`);
+        try {
+            const profileId = user.id;
+            if (profileId) {
+                // Aggiorna profilo
+                await supabase.from('profiles').update({ 
+                    current_mood: mood 
+                }).eq('id', profileId);
+
+                // Inserisce nello storico
+                await supabase.from('mood_history').insert([{
+                    user_id: profileId,
+                    mood: mood
                 }]);
-            } catch (e) {
-                console.error("Error saving mood", e);
             }
+        } catch (e) {
+            console.error("Error saving mood", e);
         }
     };
 

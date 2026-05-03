@@ -3,6 +3,7 @@ import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianG
 import { getMoodHistory, getMoodColor } from '../utils/moodHistory';
 import { AlertTriangle, Activity, FileText, TrendingUp, XCircle } from 'lucide-react';
 import AppIcon from './AppIcon';
+import { supabase } from '../supabaseClient';
 
 const MOOD_LABELS = { happy: 'Felice', neutral: 'Neutro', sad: 'Triste' };
 const NOTES_STORAGE_KEY = 'alzheimer_clinical_notes';
@@ -77,43 +78,79 @@ function saveClinicalNote(content, authorRole = 'healthcare') {
 }
 
 export default function ClinicalDashboard() {
-  const history = useMemo(() => getMoodHistory(), []);
+  const [patients, setPatients] = useState([]);
+  const [selectedPatient, setSelectedPatient] = useState(null);
+  const [history, setHistory] = useState([]);
   const [tasks, setTasks] = useState([]);
-  const [notes, setNotes] = useState(getClinicalNotes());
+  const [notes, setNotes] = useState([]);
   const [newNote, setNewNote] = useState('');
+  const [loading, setLoading] = useState(true);
+
+  const user = JSON.parse(localStorage.getItem('alzheimer_user') || '{}');
 
   useEffect(() => {
-    const saved = localStorage.getItem('alzheimer_tasks');
-    setTasks(saved ? JSON.parse(saved) : []);
+    fetchPatients();
   }, []);
 
-  const alertSadConsecutive = useMemo(() => hasConsecutiveSadDays(history), [history]);
-
-  const lineChartData = useMemo(() => {
-    const byDay = aggregateByDay(history);
-    const points = [];
-    const now = new Date();
-    for (let i = 6; i >= 0; i--) {
-      const d = new Date(now);
-      d.setDate(d.getDate() - i);
-      const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
-      const mood = prevalentMood(byDay[key]);
-      const score = mood === 'happy' ? 2 : mood === 'neutral' ? 1 : 0;
-      points.push({
-        date: d.toLocaleDateString('it-IT', { weekday: 'short', day: 'numeric', month: 'short' }),
-        short: d.toLocaleDateString('it-IT', { weekday: 'narrow' }),
-        benessere: score,
-        mood,
-      });
+  useEffect(() => {
+    if (selectedPatient) {
+      fetchPatientData(selectedPatient.id);
     }
-    return points;
-  }, [history]);
+  }, [selectedPatient]);
 
-  const handleAddNote = () => {
-    if (!newNote.trim()) return;
-    saveClinicalNote(newNote);
-    setNotes(getClinicalNotes());
-    setNewNote('');
+  const fetchPatients = async () => {
+    const { data } = await supabase.from('profiles').select('*').eq('role', 'patient');
+    if (data) {
+      setPatients(data);
+      if (data.length > 0) setSelectedPatient(data[0]);
+    }
+    setLoading(false);
+  };
+
+  const fetchPatientData = async (patientId) => {
+    // Carica umori
+    const { data: moodData } = await supabase
+      .from('mood_history')
+      .select('*')
+      .eq('user_id', patientId)
+      .order('created_at', { ascending: true });
+    
+    if (moodData) {
+      setHistory(moodData.map(m => ({ mood: m.mood, timestamp: m.created_at })));
+    }
+
+    // Carica task (agenda)
+    const { data: taskData } = await supabase
+      .from('tasks')
+      .select('*')
+      .eq('user_id', patientId)
+      .order('created_at', { ascending: false });
+    
+    if (taskData) setTasks(taskData);
+
+    // Carica note
+    const { data: noteData } = await supabase
+      .from('clinical_notes')
+      .select('*')
+      .eq('patient_id', patientId)
+      .order('created_at', { ascending: false });
+    
+    if (noteData) setNotes(noteData);
+  };
+
+  const handleAddNote = async () => {
+    if (!newNote.trim() || !selectedPatient) return;
+    
+    const { data, error } = await supabase.from('clinical_notes').insert([{
+      patient_id: selectedPatient.id,
+      author_id: user.id,
+      content: newNote.trim()
+    }]).select();
+
+    if (!error && data) {
+      setNotes([data[0], ...notes]);
+      setNewNote('');
+    }
   };
 
   const styles = {
@@ -209,8 +246,51 @@ export default function ClinicalDashboard() {
     },
   };
 
+  if (loading) return <div style={styles.empty}>Caricamento dati clinici...</div>;
+
+  const alertSadConsecutive = hasConsecutiveSadDays(history);
+
+  const lineChartData = (() => {
+    const byDay = aggregateByDay(history);
+    const points = [];
+    const now = new Date();
+    for (let i = 6; i >= 0; i--) {
+      const d = new Date(now);
+      d.setDate(d.getDate() - i);
+      const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+      const mood = prevalentMood(byDay[key]);
+      const score = mood === 'happy' ? 2 : mood === 'neutral' ? 1 : 0;
+      points.push({
+        date: d.toLocaleDateString('it-IT', { weekday: 'short', day: 'numeric', month: 'short' }),
+        short: d.toLocaleDateString('it-IT', { weekday: 'narrow' }),
+        benessere: score,
+        mood,
+      });
+    }
+    return points;
+  })();
+
   return (
     <div style={styles.container}>
+      {/* Selezione Paziente */}
+      <div style={styles.section}>
+        <div style={styles.card}>
+          <div style={styles.cardTitle}>
+            <Activity size={22} color="var(--color-primary)" />
+            <span>Monitoraggio Pazienti</span>
+          </div>
+          <select 
+            style={{ ...styles.textarea, minHeight: '45px', marginBottom: '10px' }}
+            value={selectedPatient?.id || ''}
+            onChange={(e) => setSelectedPatient(patients.find(p => p.id === e.target.value))}
+          >
+            {patients.map(p => (
+              <option key={p.id} value={p.id}>{p.name} {p.surname}</option>
+            ))}
+          </select>
+          {patients.length === 0 && <div style={styles.empty}>Nessun paziente trovato nel database.</div>}
+        </div>
+      </div>
       {/* Alert: 2+ giorni consecutivi tristi */}
       <div style={styles.section}>
         {alertSadConsecutive && (
@@ -311,8 +391,8 @@ export default function ClinicalDashboard() {
                 <div key={n.id} style={styles.noteItem}>
                   {n.content}
                   <div style={styles.noteMeta}>
-                    {new Date(n.createdAt).toLocaleString('it-IT')}
-                    {n.authorRole && ` · ${n.authorRole === 'healthcare' ? 'Operatore' : n.authorRole}`}
+                    {new Date(n.created_at).toLocaleString('it-IT')}
+                    {n.author_id === user.id ? ' · Tu' : ' · Medico'}
                   </div>
                 </div>
               ))
