@@ -5,49 +5,56 @@ import { supabase } from '../supabaseClient';
 import styles from './TabBar.module.css';
 
 const TabBar = () => {
-    const [hasUnread, setHasUnread] = useState(false);
+    const [hasUnreadGeneral, setHasUnreadGeneral] = useState(false);
     const user = JSON.parse(localStorage.getItem('alzheimer_user') || '{}');
 
     useEffect(() => {
         if (!user.id) return;
 
         const checkUnread = async () => {
+            const lastView = localStorage.getItem('last_chat_view') || '1970-01-01T00:00:00Z';
             const { count } = await supabase
-                .from('private_messages')
+                .from('messages')
                 .select('*', { count: 'exact', head: true })
-                .eq('receiver_id', user.id)
-                .eq('is_read', false);
+                .gt('created_at', lastView)
+                .neq('sender_id', user.id); // Non contare i propri messaggi
             
-            setHasUnread(count > 0);
+            setHasUnreadGeneral(count > 0);
         };
 
         checkUnread();
 
-        // Realtime per nuovi messaggi
+        // Realtime per chat generale
         const channel = supabase
-            .channel('unread-notifications')
+            .channel('general-chat-notifications')
             .on('postgres_changes', {
                 event: 'INSERT',
                 schema: 'public',
-                table: 'private_messages',
-                filter: `receiver_id=eq.${user.id}`
-            }, () => {
-                setHasUnread(true);
-            })
-            .on('postgres_changes', {
-                event: 'UPDATE',
-                schema: 'public',
-                table: 'private_messages',
-                filter: `receiver_id=eq.${user.id}`
+                table: 'messages'
             }, (payload) => {
-                if (payload.new.is_read) {
-                    checkUnread();
+                if (payload.new.sender_id !== user.id) {
+                    setHasUnreadGeneral(true);
                 }
             })
             .subscribe();
 
-        return () => supabase.removeChannel(channel);
-    }, [user.id]);
+        // Ascolta quando l'utente entra nella chat per resettare
+        const handleViewReset = () => {
+            if (window.location.hash.includes('/chat')) {
+                localStorage.setItem('last_chat_view', new Date().toISOString());
+                setHasUnreadGeneral(false);
+            }
+        };
+
+        window.addEventListener('popstate', handleViewReset);
+        window.addEventListener('hashchange', handleViewReset);
+        
+        return () => {
+            supabase.removeChannel(channel);
+            window.removeEventListener('popstate', handleViewReset);
+            window.removeEventListener('hashchange', handleViewReset);
+        };
+    }, [user.id, window.location.hash]);
 
     return (
         <nav className={`${styles.tabBar} bottom-navbar`} aria-label="Navigazione principale">
@@ -64,8 +71,8 @@ const TabBar = () => {
                 className={({ isActive }) => `${styles.tab} ${isActive ? styles.active : ''}`}
             >
                 <div style={{ position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                    <AppIcon name="envelope" size={26} />
-                    {hasUnread && (
+                    <AppIcon name="comments" size={24} />
+                    {hasUnreadGeneral && (
                         <div style={{
                             position: 'absolute',
                             top: '-3px',
