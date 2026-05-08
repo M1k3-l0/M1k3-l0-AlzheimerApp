@@ -11,7 +11,7 @@ const UsersPage = () => {
     const currentUser = JSON.parse(localStorage.getItem('alzheimer_user') || '{}');
 
     useEffect(() => {
-        if (currentUser.role !== 'admin') {
+        if (currentUser.role !== 'admin' && currentUser.role !== 'super_admin') {
             navigate('/');
             return;
         }
@@ -75,8 +75,8 @@ const UsersPage = () => {
             fontSize: '10px',
             padding: '2px 8px',
             borderRadius: '10px',
-            backgroundColor: role === 'admin' ? '#FFD700' : (role === 'moderator' ? '#E0F2FE' : '#F3F4F6'),
-            color: role === 'admin' ? '#000' : (role === 'moderator' ? '#0369A1' : '#666'),
+            backgroundColor: role === 'super_admin' ? '#FECDD3' : (role === 'admin' ? '#FFD700' : (role === 'moderator' ? '#E0F2FE' : '#F3F4F6')),
+            color: role === 'super_admin' ? '#E11D48' : (role === 'admin' ? '#000' : (role === 'moderator' ? '#0369A1' : '#666')),
             fontWeight: 'bold',
             marginLeft: '8px'
         })
@@ -106,7 +106,7 @@ const UsersPage = () => {
                         <div style={styles.userRole}>{u.email}</div>
                     </Link>
                     <div style={styles.actions}>
-                        {u.role !== 'admin' && (
+                        {(u.role !== 'admin' && u.role !== 'super_admin') && (
                             <>
                                 <button 
                                     onClick={() => updateUserRole(u.id, u.role === 'moderator' ? 'caregiver' : 'moderator')} 
