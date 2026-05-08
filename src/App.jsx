@@ -1,6 +1,9 @@
 import React from 'react';
 import { HashRouter, Routes, Route, Navigate } from 'react-router-dom';
 import Layout from './components/Layout';
+import GlobalErrorBoundary from './components/DebugConsole/GlobalErrorBoundary';
+import ErrorInterceptor from './components/DebugConsole/ErrorInterceptor';
+import DebugConsole from './components/DebugConsole/DebugConsole';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useLocation } from 'react-router-dom';
 import { supabase } from './supabaseClient';
@@ -22,30 +25,8 @@ function App() {
     const [loading, setLoading] = React.useState(true);
     const location = useLocation();
 
-    // Gestione ERRORI Globale per lo scarafaggio 🪲
-    React.useEffect(() => {
-        const handleError = (event) => {
-            const errorMsg = event.message || (event.reason ? (event.reason.message || event.reason.toString()) : "Errore sconosciuto");
-            const errorLog = {
-                message: errorMsg,
-                time: new Date().toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit', second: '2-digit' }),
-                type: event.type === 'unhandledrejection' ? 'Promessa' : 'Codice'
-            };
-            
-            const existingLogs = JSON.parse(localStorage.getItem('debug_errors') || '[]');
-            existingLogs.unshift(errorLog);
-            localStorage.setItem('debug_errors', JSON.stringify(existingLogs.slice(0, 10)));
-            
-            window.dispatchEvent(new CustomEvent('debug_error_added'));
-        };
-
-        window.addEventListener('error', handleError);
-        window.addEventListener('unhandledrejection', handleError);
-        return () => {
-            window.removeEventListener('error', handleError);
-            window.removeEventListener('unhandledrejection', handleError);
-        };
-    }, []);
+    // Il vecchio gestore errori in localStorage è stato rimosso.
+    // Ora usiamo ErrorInterceptor (aggiunto in AppWrapper) che salva su zustand.
 
     // Listener ufficiale per l'autenticazione
     React.useEffect(() => {
@@ -201,9 +182,13 @@ function App() {
 }
 
 const AppWrapper = () => (
-    <HashRouter>
-        <App />
-    </HashRouter>
+    <GlobalErrorBoundary>
+        <ErrorInterceptor />
+        <HashRouter>
+            <App />
+        </HashRouter>
+        <DebugConsole />
+    </GlobalErrorBoundary>
 );
 
 export default AppWrapper;
