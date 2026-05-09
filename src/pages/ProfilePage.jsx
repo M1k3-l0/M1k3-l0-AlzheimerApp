@@ -878,9 +878,24 @@ const ProfilePage = () => {
                     </div>
                 </div>
             )}
-                            </div>
-                            <div style={{ fontSize: '11px', color: '#9CA3AF' }}>
-                                {new Date(act.created_at).toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' })}
+            <div style={styles.infoCard}>
+                <div style={styles.sectionHeader}>
+                    <h3 style={styles.sectionTitle}>Attività Recente</h3>
+                    <AppIcon name="history" size={18} color="primary" />
+                </div>
+                
+                {activities.length === 0 ? (
+                    <div style={{ textAlign: 'center', padding: '24px', color: '#9CA3AF', fontSize: '14px' }}>
+                        Nessuna attività registrata.
+                    </div>
+                ) : (
+                    activities.slice(0, 5).map(act => (
+                        <div key={act.id} style={styles.activityItem}>
+                            <div style={{ flex: 1 }}>
+                                <div style={{ fontSize: '14px', color: '#374151' }}>{act.activity_type}</div>
+                                <div style={{ fontSize: '11px', color: '#9CA3AF' }}>
+                                    {new Date(act.created_at).toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' })}
+                                </div>
                             </div>
                         </div>
                     ))
