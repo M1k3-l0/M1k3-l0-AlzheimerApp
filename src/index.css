@@ -641,7 +641,7 @@ button:active {
 
   /* Padding-top obbligatorio così lo scroll non fa passare il contenuto sotto l'header */
   .main-content {
-    padding-top: var(--header-height) !important;
+    padding-top: calc(var(--header-height) + 16px) !important;
     padding-bottom: 0;
     padding-left: var(--page-padding-x-mobile);
     padding-right: var(--page-padding-x-mobile);
@@ -793,8 +793,22 @@ button {
 }
 
 @media screen and (max-width: 1023px) {
-  .home-notification-desktop {
-    display: none !important;
+  }
+}
+
+/* Stili specifici per la Pagina Guida */
+.page-guida {
+  background-color: var(--color-bg-primary);
+}
+
+.page-guida strong {
+  color: var(--color-primary-dark);
+}
+
+/* Fix per elementi che si "incastrano" sotto l'header su desktop */
+@media screen and (min-width: 1024px) {
+  .app-container .main-content {
+    padding-top: calc(var(--header-height) + 32px) !important;
   }
 }
 

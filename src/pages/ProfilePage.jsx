@@ -22,6 +22,8 @@ const ProfilePage = () => {
     const [isEditingBio, setIsEditingBio] = useState(false);
     const [tempBio, setTempBio] = useState("");
     const [savingBio, setSavingBio] = useState(false);
+    const [patientEmail, setPatientEmail] = useState("");
+    const [associating, setAssociating] = useState(false);
     const fileInputRef = useRef(null);
 
     const isPatient = user?.role === 'patient';
@@ -272,6 +274,38 @@ const ProfilePage = () => {
         }
     };
 
+    const handleAssociatePatient = async () => {
+        if (!patientEmail.trim() || !loggedInUser?.id) return;
+        setAssociating(true);
+        try {
+            const { data: patient, error: fetchErr } = await supabase
+                .from('profiles')
+                .select('id, name, surname')
+                .eq('email', patientEmail.trim())
+                .single();
+            
+            if (fetchErr || !patient) {
+                alert("Paziente non trovato. Verifica l'email.");
+                return;
+            }
+
+            const { error: followErr } = await supabase
+                .from('follows')
+                .insert([{ follower_id: loggedInUser.id, followed_id: patient.id }]);
+            
+            if (followErr) throw followErr;
+
+            alert(`Associazione con ${patient.name} ${patient.surname} completata!`);
+            setPatientEmail("");
+            fetchFollowStats(loggedInUser.id);
+        } catch (err) {
+            console.error('Errore associazione:', err);
+            alert('Impossibile associare il paziente.');
+        } finally {
+            setAssociating(false);
+        }
+    };
+
     const getMoodIcon = (mood) => {
         const color = getMoodColor(mood);
         const iconMap = { happy: 'grin', neutral: 'face-expressionless', sad: 'sad' };
@@ -301,15 +335,12 @@ const ProfilePage = () => {
     };
 
     const styles = {
-        container: {
-            width: '100%',
-            maxWidth: '100%',
-            minWidth: 0,
-            padding: '16px var(--content-padding-x)',
+            padding: 'var(--content-padding-y) var(--content-padding-x) 100px',
             backgroundColor: 'var(--color-bg-primary)',
             minHeight: '100%',
             boxSizing: 'border-box',
             overflowX: 'hidden',
+            paddingTop: '32px', // Spazio extra per staccarsi dall'header fisso
         },
         headerCard: {
             backgroundColor: 'white',
@@ -798,6 +829,54 @@ const ProfilePage = () => {
                                 <div style={{ fontSize: '13px', color: '#6B7280', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                                     {act.details}
                                 </div>
+                            </div>
+                        </div>
+                    ))
+                )}
+            </div>
+
+            {/* Sezione Associazione per Caregiver (solo se proprio profilo e nessun seguito?) */}
+            {isOwnProfile && user.role === 'caregiver' && (
+                <div style={styles.infoCard}>
+                    <h3 style={{ fontSize: '16px', fontWeight: 'bold', marginBottom: '16px', color: 'var(--color-primary-dark)' }}>
+                        Associa un Paziente
+                    </h3>
+                    <p style={{ fontSize: '13px', color: '#6B7280', marginBottom: '12px' }}>
+                        Inserisci l'email del paziente per monitorare il suo stato e la sua agenda.
+                    </p>
+                    <div style={{ display: 'flex', gap: '8px' }}>
+                        <input 
+                            type="email"
+                            placeholder="email.paziente@esempio.it"
+                            value={patientEmail}
+                            onChange={(e) => setPatientEmail(e.target.value)}
+                            style={{ 
+                                flex: 1, 
+                                padding: '10px', 
+                                borderRadius: '12px', 
+                                border: '1px solid #E5E7EB',
+                                fontSize: '14px'
+                            }}
+                        />
+                        <button 
+                            onClick={handleAssociatePatient}
+                            disabled={associating}
+                            style={{ 
+                                backgroundColor: 'var(--color-primary)', 
+                                color: 'white', 
+                                border: 'none', 
+                                borderRadius: '12px', 
+                                padding: '0 16px', 
+                                fontWeight: 'bold',
+                                cursor: 'pointer',
+                                fontSize: '13px'
+                            }}
+                        >
+                            {associating ? '...' : 'Associa'}
+                        </button>
+                    </div>
+                </div>
+            )}
                             </div>
                             <div style={{ fontSize: '11px', color: '#9CA3AF' }}>
                                 {new Date(act.created_at).toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' })}

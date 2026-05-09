@@ -12,7 +12,8 @@ const SignupPage = () => {
         surname: '',
         email: '',
         password: '',
-        role: 'caregiver' // Default
+        role: 'caregiver', // Default
+        patientEmail: '' // Per associazione
     });
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
@@ -35,16 +36,36 @@ const SignupPage = () => {
                     data: {
                         name: formData.name,
                         surname: formData.surname,
-                        role: formData.role
+                        role: formData.role,
+                        patient_email: formData.role === 'caregiver' ? formData.patientEmail : null
                     },
-                    emailRedirectTo: window.location.origin
+                    emailRedirectTo: window.location.origin + '/#/'
                 }
             });
 
             if (signUpError) throw signUpError;
 
             if (data.user) {
-                alert("Registrazione completata! Ora puoi accedere.");
+                // Se è un caregiver e ha inserito una mail paziente, prova l'associazione
+                if (formData.role === 'caregiver' && formData.patientEmail) {
+                    try {
+                        const { data: patient } = await supabase
+                            .from('profiles')
+                            .select('id')
+                            .eq('email', formData.patientEmail)
+                            .single();
+                        
+                        if (patient) {
+                            await supabase.from('follows').insert([{
+                                follower_id: data.user.id,
+                                followed_id: patient.id
+                            }]);
+                        }
+                    } catch (e) {
+                        console.warn("Associazione automatica fallita, ma registrazione completata.");
+                    }
+                }
+                alert("Registrazione completata! Controlla la mail per confermare l'account.");
                 navigate('/login');
             }
 
@@ -162,6 +183,26 @@ const SignupPage = () => {
                             </select>
                         </div>
                     </div>
+
+                    {formData.role === 'caregiver' && (
+                        <div style={styles.inputGroup}>
+                            <label style={styles.label}>Email del Paziente da assistere</label>
+                            <div style={styles.inputWrapper}>
+                                <AppIcon name="envelope" size={18} color="primary" style={styles.icon}/>
+                                <input 
+                                    name="patientEmail" 
+                                    type="email" 
+                                    style={styles.input} 
+                                    placeholder="paziente@email.com" 
+                                    onChange={handleChange} 
+                                    required 
+                                />
+                            </div>
+                            <p style={{fontSize: '11px', color: '#888', marginTop: '4px', marginLeft: '4px'}}>
+                                Inserisci l'email del paziente per associarti subito al suo profilo.
+                            </p>
+                        </div>
+                    )}
 
                     <div style={styles.inputGroup}>
                         <label style={styles.label}>Password</label>

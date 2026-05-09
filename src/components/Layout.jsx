@@ -32,14 +32,18 @@ const Layout = () => {
     const isChatPage = currentPath.includes('chat');
     const isProfilePage = currentPath.includes('profilo');
     const hideTabBar = currentPath.includes('chat-privata');
+    const isGuidePage = currentPath.includes('guida');
     
     const getTitle = (path) => {
         if (path.includes('chat-privata')) return 'Chat';
         if (path.startsWith('/profilo/')) return 'Profilo';
         if (path.startsWith('/feed')) return 'Memoriae';
-        if (path.startsWith('/utenti')) return 'Ricerca';
+        if (path.startsWith('/messaggi')) return 'Messaggi';
+        if (path.startsWith('/cerca-persone') || path.startsWith('/utenti')) return 'Ricerca';
         if (path.startsWith('/impostazioni')) return 'Impostazioni';
         if (path.startsWith('/report-umore')) return 'Report Umore';
+        if (path.startsWith('/guida')) return 'Guida all\'Uso';
+        if (path.startsWith('/users')) return 'Gestione Utenti';
         
         if (path === '/' || path === '') return 'Home';
         return 'Memora';
@@ -48,7 +52,7 @@ const Layout = () => {
     return (
         <div className={`app-container${isFullPage ? ' full-page' : ''}`}>
             <Header title={getTitle(currentPath)} />
-            <main className={`main-content${isFullPage ? ' full-page' : ''}${isChatPage ? ' full-page-fill' : ''}${isProfilePage ? ' page-profilo' : ''}`} style={{ paddingTop: 'var(--header-height)' }}>
+            <main className={`main-content${isFullPage ? ' full-page' : ''}${isChatPage ? ' full-page-fill' : ''}${isProfilePage ? ' page-profilo' : ''}${isGuidePage ? ' page-guida' : ''}`} style={{ paddingTop: 'var(--header-height)' }}>
                 <AnimatePresence mode="wait">
                     <motion.div
                         key={location.pathname}

@@ -204,6 +204,14 @@ const SettingsPage = () => {
           </div>
           <div style={{...styles.switch(isLargeFont), backgroundColor: isLargeFont ? 'var(--color-success)' : '#ddd'}}><div style={{width: 27, height: 27, background: 'white', borderRadius: '50%', position: 'absolute', top: 2, left: isLargeFont ? 22 : 2, transition: '0.3s'}}/></div>
         </button>
+
+        <button style={styles.menuItem} onClick={() => navigate('/guida')}>
+          <div style={{ display: "flex", alignItems: "center" }}>
+            <div style={styles.iconWrapper("var(--color-primary)")}><AppIcon name="book" size={18} color="white" /></div>
+            <span style={styles.itemLabel}>Guida all'Uso</span>
+          </div>
+          <ChevronRight size={20} color="#ccc" />
+        </button>
       </div>
 
       {isDenied && (
