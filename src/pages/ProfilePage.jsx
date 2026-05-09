@@ -620,6 +620,7 @@ const ProfilePage = () => {
                 }}>
                     {(user.role === 'admin' || user.role === 'super_admin') && <AppIcon name="crown" size={16} color={user.role === 'super_admin' ? 'white' : 'black'} />}
                     {user.role === 'moderator' && <AppIcon name="shield-check" size={16} color="#0369A1" />}
+                    {user.role === 'healthcare' && <AppIcon name="stethoscope" size={16} color="currentColor" />}
                     {getRoleLabel(user.role)}
                 </div>
 
