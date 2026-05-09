@@ -793,7 +793,7 @@ const ProfilePage = () => {
                 </div>
                 <div style={{ ...styles.infoRow, borderBottom: 'none' }}>
                     <AppIcon name="calendar-lines" size={20} color="primary" />
-                    <span>Iscritto a Gennaio 2026</span>
+                    <span>{user.created_at ? `Iscritto il ${new Date(user.created_at).toLocaleDateString('it-IT', { day: 'numeric', month: 'long', year: 'numeric' })}` : 'Data non disponibile'}</span>
                 </div>
             </div>
             
@@ -878,45 +878,7 @@ const ProfilePage = () => {
                     </div>
                 </div>
             )}
-            <div style={styles.infoCard}>
-                <div style={styles.sectionHeader}>
-                    <h3 style={styles.sectionTitle}>Attività Recente</h3>
-                    <AppIcon name="history" size={18} color="primary" />
-                </div>
-                
-                {activities.length === 0 ? (
-                    <div style={{ textAlign: 'center', padding: '24px', color: '#9CA3AF', fontSize: '14px' }}>
-                        Nessuna attività registrata.
-                    </div>
-                ) : (
-                    activities.slice(0, 5).map(act => (
-                        <div key={act.id} style={styles.activityItem}>
-                            <div style={{ 
-                                width: '32px', 
-                                height: '32px', 
-                                borderRadius: '8px', 
-                                backgroundColor: 'var(--color-bg-primary)', 
-                                display: 'flex', 
-                                alignItems: 'center', 
-                                justifyContent: 'center',
-                                fontSize: '16px'
-                            }}>
-                                {act.action === 'task_completed' ? '✅' : 
-                                 act.action === 'mood_updated' ? '🎭' : 
-                                 act.action === 'task_added' ? '➕' : '🕒'}
-                            </div>
-                            <div style={{ flex: 1 }}>
-                                <div style={{ fontSize: '14px', color: '#374151', fontWeight: '500' }}>
-                                    {act.details || act.activity_type || (act.action === 'task_completed' ? 'Task completato' : 'Attività registrata')}
-                                </div>
-                                <div style={{ fontSize: '11px', color: '#9CA3AF' }}>
-                                    {new Date(act.created_at).toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' })}
-                                </div>
-                            </div>
-                        </div>
-                    ))
-                )}
-            </div>
+
 
             {/* Quick Actions Card */}
             <div style={{ ...styles.actionCard, padding: 0, overflow: 'hidden' }}>

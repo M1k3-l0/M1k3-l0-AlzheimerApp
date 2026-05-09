@@ -333,7 +333,7 @@ const FeedPage = () => {
 
     const styles = {
         container: { width: '100%', maxWidth: '100%', minWidth: 0, backgroundColor: 'var(--color-bg-primary)', minHeight: '100%', padding: '0 14px 100px 14px', boxSizing: 'border-box', overflowX: 'hidden' },
-        stickyHeader: { position: 'sticky', top: 0, zIndex: 100, backgroundColor: 'var(--color-bg-primary)', padding: '12px 0 1px 0', maxWidth: '100%' },
+        stickyHeader: { position: 'relative', backgroundColor: 'var(--color-bg-primary)', padding: '12px 0 1px 0', maxWidth: '100%' },
         card: { backgroundColor: '#fff', margin: '0 0 var(--section-gap) 0', borderRadius: 'var(--card-radius)', padding: 'var(--content-padding-x)', boxShadow: 'var(--card-shadow)', maxWidth: '100%', minWidth: 0, boxSizing: 'border-box' },
         lightbox: { position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.9)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 2000, cursor: 'pointer', padding: '20px', boxSizing: 'border-box' },
         avatar: (mood) => ({ 
@@ -446,6 +446,7 @@ const FeedPage = () => {
                                 <div style={{ fontWeight: '700', color: 'var(--color-primary-dark)', display: 'flex', alignItems: 'center', gap: '6px' }}>
                                     {post.author}
                                     {authorRole === 'admin' && <AppIcon name="crown" size={14} color="primary" />}
+                                    {authorRole === 'healthcare' && <AppIcon name="stethoscope" size={16} color="primary" />}
                                     {authorMood && <span style={{ fontSize: '18px' }}>{getMoodEmoji(authorMood)}</span>}
                                 </div>
                                 <div style={{ fontSize: '11px', color: '#999' }}>{new Date(post.created_at).toLocaleString('it-IT', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}</div>

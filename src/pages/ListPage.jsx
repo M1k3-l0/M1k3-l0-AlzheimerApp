@@ -77,7 +77,11 @@ const ListPage = () => {
         if (!error && data) {
             // Se non ci sono task, inizializza con quelli predefiniti la prima volta
             if (data.length === 0) {
-                const defaults = initialTasks.map(t => ({ ...t, user_id: user.id, id: undefined }));
+                const defaults = initialTasks.map(t => {
+                    const newTask = { ...t, user_id: user.id };
+                    delete newTask.id;
+                    return newTask;
+                });
                 const { data: inserted } = await supabase.from('tasks').insert(defaults).select();
                 if (inserted) setTasks(inserted);
             } else {
