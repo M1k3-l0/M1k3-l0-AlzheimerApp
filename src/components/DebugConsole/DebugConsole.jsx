@@ -113,16 +113,25 @@ const DebugConsole = () => {
             alert('Nessun log da esportare.');
             return;
         }
-        const encodedText = encodeURIComponent(`Bug Report da CareLink App:\n\n${text}`);
-        const action = prompt('Digita "email" per inviare via Mail, "wa" per WhatsApp, o "copia" per copiare negli appunti.', 'copia');
+
+        // Destinatario predefinito
+        const adminEmail = "admindany@gmail.com";
+        const subject = "CareLink Bug Report";
+        
+        const action = prompt('Invia report:\n- Digita "email" per Mail\n- "wa" per WhatsApp\n- "copia" per Appunti', 'copia');
         
         if (action === 'email') {
-            window.location.href = `mailto:?subject=Bug Report App&body=${encodedText}`;
+            // Limitiamo la lunghezza del body per evitare che il mailto fallisca su alcuni browser/dispositivi
+            const shortText = text.length > 1500 ? text.substring(0, 1500) + "\n\n... (Testo troncato, usa 'Copia' per il log completo)" : text;
+            const encodedBody = encodeURIComponent(`Bug Report da CareLink App:\n\n${shortText}`);
+            window.location.href = `mailto:${adminEmail}?subject=${encodeURIComponent(subject)}&body=${encodedBody}`;
         } else if (action === 'wa') {
+            const shortText = text.length > 800 ? text.substring(0, 800) + "..." : text;
+            const encodedText = encodeURIComponent(`Bug Report da CareLink App:\n\n${shortText}`);
             window.open(`https://wa.me/?text=${encodedText}`, '_blank');
         } else if (action === 'copia') {
             navigator.clipboard.writeText(`Bug Report da CareLink App:\n\n${text}`)
-                .then(() => alert('Log copiati negli appunti!'))
+                .then(() => alert('Log completi copiati negli appunti!'))
                 .catch(() => alert('Errore durante la copia.'));
         }
     };
