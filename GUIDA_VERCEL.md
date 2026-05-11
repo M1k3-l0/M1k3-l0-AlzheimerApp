@@ -11,15 +11,15 @@ Il codice è aggiornato su GitHub. Ora dobbiamo configurare Vercel per il databa
 1. Nel menu a sinistra, clicca su **"Environment Variables"**.
 2. Aggiungi queste **2 variabili** (una alla volta):
 
-### Prima Variabile:
-- **Key**: `VITE_SUPABASE_URL`
-- **Value**: `https://naqwhpgtawbsdhuogrgp.supabase.co`
-- Spunta tutte le caselle (Production, Preview, Development)
-- Clicca **"Save"**
-
 ### Seconda Variabile:
 - **Key**: `VITE_SUPABASE_ANON_KEY`
 - **Value**: `sb_publishable_ygC9dAD655aIEekWG1UOwQ_ywOE75jB`
+- Spunta tutte le caselle
+- Clicca **"Save"**
+
+### Terza Variabile:
+- **Key**: `VITE_SITE_URL`
+- **Value**: `https://alzheimerapp-chi.vercel.app`
 - Spunta tutte le caselle
 - Clicca **"Save"**
 

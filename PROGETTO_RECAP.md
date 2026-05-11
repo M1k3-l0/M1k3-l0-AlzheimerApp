@@ -329,7 +329,7 @@ AlzheimerApp/
 ## 🚀 DEPLOYMENT
 
 ### Vercel
-- **URL Produzione**: https://alzheimer-app.vercel.app
+- **URL Produzione**: https://alzheimerapp-chi.vercel.app
 - **Auto-deploy**: Push su branch `main` → deploy automatico
 - **Environment Variables**: Configurate su Vercel dashboard
 

@@ -11,7 +11,7 @@ Ho già installato tutto il necessario nel progetto. Ora tocca a te creare il da
    - `VITE_SUPABASE_ANON_KEY` = la chiave **anon public** (lunga, inizia con `eyJ...`)
 2. **Supabase Dashboard → Authentication → URL Configuration**:
    - **Site URL**: per sviluppo metti `http://localhost:5173` (o l’URL da cui apri l’app)
-   - **Redirect URLs**: aggiungi `http://localhost:5173`, `http://localhost:5173/**` e, in produzione, il tuo dominio (es. `https://alzheimer-app.vercel.app/**`)
+   - **Redirect URLs**: aggiungi `http://localhost:5173`, `http://localhost:5173/**` e, in produzione, il tuo dominio (es. `https://alzheimerapp-chi.vercel.app/**`)
 3. Riavvia il server dopo aver modificato `.env`: `npm run dev`
 
 ---
@@ -64,7 +64,7 @@ Se hai già creato `messages` e `posts` a mano, lo script aggiunge le colonne ma
 3. **Redirect URLs**: aggiungi almeno:
    - `http://localhost:5173`
    - `http://localhost:5173/**`
-   (In produzione aggiungi anche il dominio Vercel, es. `https://alzheimer-app.vercel.app/**`.)
+   (In produzione aggiungi anche il dominio Vercel, es. `https://alzheimerapp-chi.vercel.app/**`.)
 
 ### Passo 8: Configura lo Storage (Foto Profilo)
 Per permettere il caricamento della foto profilo, devi creare un bucket pubblico:

@@ -39,7 +39,7 @@ const SignupPage = () => {
                         role: formData.role,
                         patient_email: formData.role === 'caregiver' ? formData.patientEmail : null
                     },
-                    emailRedirectTo: window.location.origin + '/#/'
+                    emailRedirectTo: (import.meta.env.VITE_SITE_URL || window.location.origin) + '/#/'
                 }
             });
 
