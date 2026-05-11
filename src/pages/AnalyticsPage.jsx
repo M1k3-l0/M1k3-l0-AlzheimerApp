@@ -16,9 +16,11 @@ const AnalyticsPage = () => {
     const [patients, setPatients] = useState([]);
 
     useEffect(() => {
-        const timer = setTimeout(() => setIsReady(true), 300);
-        return () => clearTimeout(timer);
-    }, []);
+        if (!loading) {
+            const timer = setTimeout(() => setIsReady(true), 500);
+            return () => clearTimeout(timer);
+        }
+    }, [loading]);
 
     useEffect(() => {
         const fetchData = async () => {

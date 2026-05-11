@@ -36,9 +36,11 @@ export default function ReportUmorePage() {
   const loggedInUser = JSON.parse(localStorage.getItem('alzheimer_user') || '{}');
 
   useEffect(() => {
-    const timer = setTimeout(() => setIsReady(true), 400);
-    return () => clearTimeout(timer);
-  }, []);
+    if (!loading) {
+        const timer = setTimeout(() => setIsReady(true), 500);
+        return () => clearTimeout(timer);
+    }
+  }, [loading]);
 
   useEffect(() => {
     const fetchHistory = async () => {

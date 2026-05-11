@@ -89,9 +89,11 @@ export default function ClinicalDashboard() {
   const [isReady, setIsReady] = useState(false);
 
   useEffect(() => {
-    const timer = setTimeout(() => setIsReady(true), 500);
-    return () => clearTimeout(timer);
-  }, []);
+    if (!loading) {
+        const timer = setTimeout(() => setIsReady(true), 500);
+        return () => clearTimeout(timer);
+    }
+  }, [loading]);
 
   const user = JSON.parse(localStorage.getItem('alzheimer_user') || '{}');
 
