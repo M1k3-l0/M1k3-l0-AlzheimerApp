@@ -255,7 +255,7 @@ const AnalyticsPage = () => {
                 </div>
                 <div style={styles.chartContainer}>
                     {isReady && moodData.length > 0 ? (
-                        <ResponsiveContainer width="100%" aspect={2}>
+                        <ResponsiveContainer width="100%" height={250}>
                             <AreaChart data={moodData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                             <defs>
                                 <linearGradient id="colorMood" x1="0" y1="0" x2="0" y2="1">
@@ -271,7 +271,7 @@ const AnalyticsPage = () => {
                         </AreaChart>
                     </ResponsiveContainer>
                     ) : (
-                        <div style={{ height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#9CA3AF', fontSize: '12px' }}>
+                        <div style={{ height: 250, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#9CA3AF', fontSize: '12px' }}>
                             {loading ? 'Caricamento...' : 'Nessun dato umore disponibile'}
                         </div>
                     )}
@@ -284,7 +284,7 @@ const AnalyticsPage = () => {
                 </div>
                 <div style={styles.chartContainer}>
                     {isReady && taskData.length > 0 ? (
-                        <ResponsiveContainer width="100%" aspect={2}>
+                        <ResponsiveContainer width="100%" height={250}>
                             <BarChart data={taskData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                             <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#F3F4F6" />
                             <XAxis dataKey="day" axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#9CA3AF' }} />
@@ -295,7 +295,7 @@ const AnalyticsPage = () => {
                         </BarChart>
                     </ResponsiveContainer>
                     ) : (
-                        <div style={{ height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#9CA3AF', fontSize: '12px' }}>
+                        <div style={{ height: 250, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#9CA3AF', fontSize: '12px' }}>
                             {loading ? 'Caricamento...' : 'Nessun dato attività disponibile'}
                         </div>
                     )}

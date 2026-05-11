@@ -337,7 +337,7 @@ export default function ClinicalDashboard() {
           {lineChartData.some((p) => p.mood != null) ? (
             <div style={{ height: 220, position: 'relative', width: '100%', display: 'block' }}>
               {isReady && (
-                <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0} debounce={50}>
+                <ResponsiveContainer width="100%" height={220}>
                   <LineChart data={lineChartData} margin={{ top: 8, right: 8, left: -16, bottom: 8 }}>
                     <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
                     <XAxis dataKey="short" tick={{ fontSize: 12 }} />
