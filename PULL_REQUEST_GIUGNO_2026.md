@@ -8,18 +8,30 @@
 
 ## Aprire la PR verso CosmoNet (Daniele)
 
-1. Vai al link compare (precompilato):
-   **https://github.com/CosmoNetinfo/AlzheimerApp/compare/main...M1k3-l0:feature/giugno-2026-aggiornamento?expand=1**
+> **Aggiornamento 16/06:** le modifiche sono già mergeate nel `main` del fork `M1k3-l0/AlzheimerApp`.  
+> Confrontare `feature/...` vs `main` sul fork **non mostra nulla** (branch già integrato).
 
-   > Se compare mostra "There isn't anything to compare", il branch non condivide la storia con `main`. Il branch è stato riallineato il 16/06/2026 — ricarica la pagina.
+1. Vai al link compare (precompilato) — **usa `main` del fork, non il feature branch**:
+   **https://github.com/CosmoNetinfo/AlzheimerApp/compare/main...M1k3-l0:main?expand=1**
 
-2. Titolo suggerito:
+2. Dovresti vedere **3 commit** e **~47 file** modificati → **Create pull request**.
+
+3. Titolo suggerito:
    `Memora: audit sicurezza, pulizia codice e documentazione (Giugno 2026)`
 
-3. Assegna la review a **Daniele Spalletti** / team CosmoNet.
+4. Assegna la review a **Daniele Spalletti** / team CosmoNet.
 
-4. Nel corpo della PR, indica a Daniele di leggere per primo:
+5. Nel corpo della PR, indica a Daniele di leggere per primo:
    **`SICUREZZA_E_RACCOMANDAZIONI.md`**
+
+### Impostazione manuale (Pull Request → New)
+
+| Campo | Valore |
+|-------|--------|
+| **base repository** | `CosmoNetinfo/AlzheimerApp` |
+| **base branch** | `main` |
+| **head repository** | `M1k3-l0/AlzheimerApp` |
+| **compare branch** | `main` |
 
 ---
 
